@@ -675,5 +675,37 @@ const CONFIG = {
   function burst(k) { for (let i = 0; i < k; i++) setTimeout(spawn, i * 60); }
   setInterval(spawn, 1100);
 </script>
+<!-- BACKGROUND SONG: Inayae -->
+<audio id="bgSong" src="inaye.mp3" loop preload="auto"></audio>
+<button id="musicBtn" aria-label="Music on/off" title="Music">🎵</button>
+<style>
+  #musicBtn{position:fixed;right:14px;bottom:92px;z-index:9999;width:44px;height:44px;border-radius:50%;border:none;
+    background:rgba(224,69,127,.9);color:#fff;font-size:20px;box-shadow:0 4px 14px rgba(224,69,127,.4);cursor:pointer;display:none}
+  #musicBtn.show{display:block}
+  #musicBtn.playing{animation:mspin 4s linear infinite}
+  @keyframes mspin{to{transform:rotate(360deg)}}
+</style>
+<script>
+(function(){
+  const song = document.getElementById('bgSong'), btn = document.getElementById('musicBtn'), vid = document.getElementById('vvid');
+  let wantMusic = true;
+  song.volume = 0.6;
+  const play = () => song.play().then(() => { btn.classList.add('show','playing'); btn.textContent = '🎵'; }).catch(() => {});
+  const stop = () => { song.pause(); btn.classList.remove('playing'); btn.textContent = '🔇'; };
+  // Start the song on her very first tap (the flower)
+  document.addEventListener('click', function first(e){
+    if (e.target === btn) return;
+    play(); btn.classList.add('show');
+    document.removeEventListener('click', first, true);
+  }, true);
+  btn.addEventListener('click', e => { e.stopPropagation(); wantMusic = song.paused; wantMusic ? play() : stop(); });
+  // Pause the song while one of your videos plays, resume after
+  if (vid) {
+    vid.addEventListener('play', () => { if (!song.paused) song.pause(); });
+    const resume = () => { if (wantMusic) play(); };
+    vid.addEventListener('pause', resume); vid.addEventListener('ended', resume);
+  }
+})();
+</script>
 </body>
 </html>
